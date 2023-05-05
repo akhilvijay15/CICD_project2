@@ -7,7 +7,7 @@ pipeline {
   stages {
        stage('Fetch code'){
           steps {
-              git branch:'main', url: 'https://github.com/devopshydclub/vprofile-repo.git'
+              git branch:'main', url: 'https://github.com/akhilvijay15/CICD_project2.git'
           }
        }
 
