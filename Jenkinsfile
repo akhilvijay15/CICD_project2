@@ -58,16 +58,16 @@ pipeline{
                     
                 }
             }
-            stage('Quality Gate Status'){
-                
-                steps{
-                    
-                    script{
-                        
-                        waitForQualityGate abortPipeline: false, credentialsId: 'MysonarToken2'
-                    }
+            stage("Quality Gate") {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+                    // true = set pipeline to UNSTABLE, false = dont
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
+                }
+            }
+    
         
-}
