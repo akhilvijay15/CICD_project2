@@ -1,67 +1,45 @@
-pipeline{
-    
-    agent any 
-    
-    stages {
-        
-        stage('Git Checkout'){
-            
-            steps{
-                
-                script{
-                    
-                    git branch: 'main', url: 'https://github.com/akhilvijay15/CICD_project2.git'
-                }
-            }
-        }
-        stage('UNIT testing'){
-            
-            steps{
-                
-                script{
-                    
-                    sh 'mvn test'
-                }
-            }
-        }
-        stage('Integration testing'){
-            
-            steps{
-                
-                script{
-                    
-                    sh 'mvn verify -DskipUnitTests'
-                }
-            }
-        }
-        stage('Maven build'){
-            
-            steps{
-                
-                script{
-                    
-                    sh 'mvn clean install'
-                }
-            }
-        }
-        stage('Static code analysis'){
-            
-            steps{
-                
-                script{
-                    
-                    withSonarQubeEnv(credentialsId: 'MysonarToken2') {
-                        
-                        sh 'mvn clean package sonar:sonar'
-                    }
-                   }
-                    
-                }
+pipeline {
+  agent any
+  tools {
+      maven "MAVEN-3.9.1"
+      jdk "OracleJDK8"
+  }
+  stages {
+       stage('Fetch code'){
+          steps {
+              git branch:'main', url: 'https://github.com/devopshydclub/vprofile-repo.git'
+          }
+       }
 
+       stage('Build'){
+          steps{
+             sh 'mvn install -DskipTests'
+          }
+          post {
+             success {
+                  echo 'Now Archiving it...'
+                  archiveArtifacts artifacts: '**/target/*.war'
+             }
+          }
+       }
+       stage('UNIT TEST'){
+          steps{
+             sh 'mvn test'
+          }
+        }
+        stage('CheckStyle Analysis'){
+            steps{
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+         stage('Sonar Analysis'){
+            environment{
+                     scannerHome = tool 'sonar4.8'
+            }
 
-                steps {
-                  withSonarQubeEnv('sonar') {
-                 sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
+         steps {
+            withSonarQubeEnv('sonar') {
+               sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
                    -Dsonar.projectName=vprofile \
                    -Dsonar.projectVersion=1.0 \
                    -Dsonar.sources=src/ \
@@ -72,8 +50,7 @@ pipeline{
             }
          }
       }
-            }
-            stage("Quality Gate") {
+      stage("Quality Gate") {
             steps {
                 timeout(time: 1, unit: 'HOURS') {
                     // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
@@ -82,7 +59,6 @@ pipeline{
                 }
             }
         }
-}           
-            
-    
+  } 
+}    
         
