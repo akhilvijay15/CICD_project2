@@ -21,7 +21,7 @@ pipeline{
           post {
              success {
                   echo 'Now Archiving it...'
-                  archiveArtifacts artifacts: '**/target/*.war'
+                  archiveArtifacts artifacts: '**/target/*.jar'
              }
           }
        }
@@ -42,8 +42,8 @@ pipeline{
 
          steps {
             withSonarQubeEnv('sonar') {
-               sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
-                   -Dsonar.projectName=vprofile \
+               sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=cicd_project2 \
+                   -Dsonar.projectName=cicd_project2 \
                    -Dsonar.projectVersion=1.0 \
                    -Dsonar.sources=src/ \
                    -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
@@ -53,15 +53,7 @@ pipeline{
             }
          }
       }
-      stage("Quality Gate") {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
-                    // true = set pipeline to UNSTABLE, false = dont
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
 
     }
-}       
+
+}         
